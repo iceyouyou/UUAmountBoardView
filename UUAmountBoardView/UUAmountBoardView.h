@@ -32,7 +32,7 @@
                      textFont:(UIFont*)textFont         // 显示内容的字体
                     textColor:(UIColor*)textColor       // 显示内容的字体颜色
                    textOffset:(CGPoint)textOffset       // 显示内容的偏移量
-              unitBgViewMaker:(void (^)(UIView *unitBgView))unitBgViewMaker;    //构建每个数字单位背景View的回调
+              unitBgViewMaker:(void (^)(UIView *unitBgView))unitBgViewMaker;    // 构建每个数字单位背景View的回调
 - (instancetype)initWithAmountPattern:(NSString*)amountPattern
                              unitSize:(CGSize)unitSize
                           unitSpacing:(CGFloat)unitSpacing
