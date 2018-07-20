@@ -1,5 +1,5 @@
 # UUAmountBoardView
-用于iOS，通过使用UITableView结合Pop动画的方式，创建带有数字(金额)翻转效果的UI控件。
+用于iOS，通过使用UITableView结合Pop动画的方式，创建带有数字(金额)滚动效果的UI控件。
 
 ## Demo
 ![UUAmountBoardView](https://raw.githubusercontent.com/iceyouyou/UUAmountBoardView/master/extra/demo.gif)
@@ -81,7 +81,7 @@ UUAmountBoardView *bView = [[UUAmountBoardView alloc] initWithFrame:(CGRectMake(
 - Supports iOS7+.
 
 ## Additional
-使用[facebook/Pop](https://github.com/facebook/pop)实现数字滑动的效果。
+使用[facebook/Pop](https://github.com/facebook/pop)实现数字滚动的效果。
 
 ## License
 `UUAmountBoardView` is available under the MIT license. See the [LICENSE](LICENSE) file for more info.
