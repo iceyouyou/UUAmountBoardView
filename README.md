@@ -42,29 +42,38 @@
  * unitBgViewMaker: 构建每个数字单位背景View的回调
  */
 ```
+创建后使用以下方法设置显示数字或开启滚动效果：
+```objective-c
+- (void)setAmount:(NSString*)amount;        // 设置目标金额
+- (void)countingToAmount;                   // 滚动到已设置的目标金额
+- (void)countingToAmount:(NSString*)amount; // 滚动到指定目标金额
+```
 示例代码：
 ```objective-c
-[[UUAmountBoardView alloc] initWithFrame:(CGRectMake(20.0f, 105.0f, 0.0f, 0.0f))
-                           amountPattern:@"000,000"
-                                unitSize:CGSizeMake(20.0f, 25.0f)
-                             unitSpacing:4.0f
-                                textFont:[UIFont systemFontOfSize:20.0f]
-                               textColor:[UIColor blackColor]
-                              textOffset:CGPointZero
-                             unitBgImage:[UIImage imageNamed:@"unitBgImage"]];
+UUAmountBoardView *aView = [[UUAmountBoardView alloc] initWithFrame:(CGRectMake(20.0f, 80.0f, 0.0f, 0.0f))
+                                                      amountPattern:@"000,000"
+                                                           unitSize:CGSizeMake(20.0f, 25.0f)
+                                                        unitSpacing:4.0f
+                                                           textFont:[UIFont systemFontOfSize:20.0f]
+                                                          textColor:[UIColor blackColor]
+                                                         textOffset:CGPointZero
+                                                        unitBgImage:[UIImage imageNamed:@"unitBgImage"]];
+[aView setAmount:@"7,654,321"];
+[aView countingToAmount];
 
-[[UUAmountBoardView alloc] initWithFrame:(CGRectMake(20.0f, 105.0f, 0.0f, 0.0f))
-                           amountPattern:@"000,000"
-                                unitSize:CGSizeMake(20.0f, 25.0f)
-                             unitSpacing:4.0f
-                                textFont:[UIFont systemFontOfSize:20.0f]
-                               textColor:[UIColor blackColor]
-                              textOffset:CGPointZero
-                         unitBgViewMaker:^(UIView *unitBgView) {
-                             unitBgView.layer.borderWidth = 0.5f;
-                             unitBgView.layer.borderColor = [UIColor redColor].CGColor;
-                             unitBgView.layer.cornerRadius = 4.0f;
-                         }];
+UUAmountBoardView *bView = [[UUAmountBoardView alloc] initWithFrame:(CGRectMake(20.0f, 125.0f, 0.0f, 0.0f))
+                                                      amountPattern:@"000,000"
+                                                           unitSize:CGSizeMake(20.0f, 25.0f)
+                                                        unitSpacing:4.0f
+                                                           textFont:[UIFont systemFontOfSize:20.0f]
+                                                          textColor:[UIColor blackColor]
+                                                         textOffset:CGPointZero
+                                                    unitBgViewMaker:^(UIView *unitBgView) {
+                                                        unitBgView.layer.borderWidth = 0.5f;
+                                                        unitBgView.layer.borderColor = [UIColor redColor].CGColor;
+                                                        unitBgView.layer.cornerRadius = 4.0f;
+                                                    }];
+[bView countingToAmount:@"8,392,058"];
 ```
 
 ## Compatibility
@@ -72,7 +81,7 @@
 - Supports iOS7+.
 
 ## Additional
-使用[facebook/Pop](https://github.com/facebook/pop)来实现数字滑动的效果。
+使用[facebook/Pop](https://github.com/facebook/pop)实现数字滑动的效果。
 
 ## License
 `UUAmountBoardView` is available under the MIT license. See the [LICENSE](LICENSE) file for more info.
