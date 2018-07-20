@@ -1,7 +1,7 @@
 # UUAmountBoardView
 用于iOS，通过使用UITableView结合Pop动画的方式，创建带有数字(金额)翻转效果的UI控件。
 
-## 效果
+## Demo
 ![UUAmountBoardView](https://raw.githubusercontent.com/iceyouyou/UUAmountBoardView/master/extra/demo.gif)
 
 ## 使用方法
