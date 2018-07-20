@@ -45,31 +45,34 @@
 示例代码：
 ```objective-c
 [[UUAmountBoardView alloc] initWithFrame:(CGRectMake(20.0f, 105.0f, 0.0f, 0.0f))
-						   amountPattern:@"000,000"
-								unitSize:CGSizeMake(20.0f, 25.0f)
-							 unitSpacing:4.0f
-								textFont:[UIFont systemFontOfSize:20.0f]
-		 					   textColor:[UIColor blackColor]
-							  textOffset:CGPointZero
-							 unitBgImage:[UIImage imageNamed:@"unitBgImage"]];
+                           amountPattern:@"000,000"
+                                unitSize:CGSizeMake(20.0f, 25.0f)
+                             unitSpacing:4.0f
+                                textFont:[UIFont systemFontOfSize:20.0f]
+                               textColor:[UIColor blackColor]
+                              textOffset:CGPointZero
+                             unitBgImage:[UIImage imageNamed:@"unitBgImage"]];
 
 [[UUAmountBoardView alloc] initWithFrame:(CGRectMake(20.0f, 105.0f, 0.0f, 0.0f))
-						   amountPattern:@"000,000"
-								unitSize:CGSizeMake(20.0f, 25.0f)
-							 unitSpacing:4.0f
-								textFont:[UIFont systemFontOfSize:20.0f]
-		 					   textColor:[UIColor blackColor]
-							  textOffset:CGPointZero
-						 unitBgViewMaker:^(UIView *unitBgView) {
-							 unitBgView.layer.borderWidth = 0.5f;
-							 unitBgView.layer.borderColor = [UIColor redColor].CGColor;
-							 unitBgView.layer.cornerRadius = 4.0f;
-						 }];
+                           amountPattern:@"000,000"
+                                unitSize:CGSizeMake(20.0f, 25.0f)
+                             unitSpacing:4.0f
+                                textFont:[UIFont systemFontOfSize:20.0f]
+                               textColor:[UIColor blackColor]
+                              textOffset:CGPointZero
+                         unitBgViewMaker:^(UIView *unitBgView) {
+                             unitBgView.layer.borderWidth = 0.5f;
+                             unitBgView.layer.borderColor = [UIColor redColor].CGColor;
+                             unitBgView.layer.cornerRadius = 4.0f;
+                         }];
 ```
 
 ## Compatibility
 - Requires ARC.
 - Supports iOS7+.
+
+## Additional
+使用[facebook/Pop](https://github.com/facebook/pop)来实现数字滑动的效果。
 
 ## License
 `UUAmountBoardView` is available under the MIT license. See the [LICENSE](LICENSE) file for more info.
