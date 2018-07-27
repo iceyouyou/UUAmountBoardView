@@ -1,4 +1,6 @@
 # UUAmountBoardView
+[![Build Status](https://travis-ci.org/iceyouyou/UUAmountBoardView.svg?branch=master)](https://travis-ci.org/iceyouyou/UUAmountBoardView)
+
 用于iOS，通过使用UITableView结合Pop动画的方式，创建带有数字(金额)滚动效果的UI控件。
 
 ## Demo
