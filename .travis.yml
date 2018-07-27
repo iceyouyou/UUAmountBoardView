@@ -1,0 +1,6 @@
+language: objective-c
+osx_image: xcode9
+
+script:
+  - set -o pipefail
+  - xcodebuild clean build -workspace UUAmountBoardViewDemo.xcworkspace -scheme UUAmountBoardViewDemo -sdk iphonesimulator -configuration Debug
