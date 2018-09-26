@@ -159,6 +159,93 @@
     }
 }
 
+- (void)fixUnitBgs {
+    if (!_unitBgViews) {
+        self.unitBgViews = [NSMutableArray array];
+    }
+
+    if (_unitBgImage) {
+        NSMutableArray *unitBgNeedsRemove = [NSMutableArray array];
+        for (int i = 0; i < MAX(_amountPattern.length, _unitBgViews.count); i++) {
+            if (i < MIN(_amountPattern.length, _unitBgViews.count)) {
+                // 已创建，无需重置内容
+            } else if (i >= _amountPattern.length && i < _units.count) {
+                // 已创建，多余需删除
+                [_unitBgViews[i] removeFromSuperview];
+                [unitBgNeedsRemove addObject:_unitBgViews[i]];
+            } else {
+                // 初次创建
+                UIImageView *unitBgView = [[UIImageView alloc] initWithImage:_unitBgImage];
+                [unitBgView setFrame:CGRectMake((_unitSize.width + _unitSpacing) * i,
+                                                0.0f,
+                                                _unitSize.width,
+                                                _unitSize.height)];
+                [self addSubview:unitBgView];
+                [_unitBgViews addObject:unitBgView];
+            }
+        }
+        // 删除多余UnitBg
+        [_unitBgViews removeObjectsInArray:unitBgNeedsRemove];
+    } else if (_unitBgViewMaker) {
+        NSMutableArray *unitBgNeedsRemove = [NSMutableArray array];
+        for (int i = 0; i < MAX(_amountPattern.length, _unitBgViews.count); i++) {
+            if (i < MIN(_amountPattern.length, _unitBgViews.count)) {
+                // 已创建，仅需重置内容
+                [_unitBgViews[i].subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+                _unitBgViewMaker(_unitBgViews[i]);
+            } else if (i >= _amountPattern.length && i < _units.count) {
+                // 已创建，多余需删除
+                [_unitBgViews[i] removeFromSuperview];
+                [unitBgNeedsRemove addObject:_unitBgViews[i]];
+            } else {
+                // 初次创建
+                UIView *unitBgView = [[UIView alloc] init];
+                [unitBgView setFrame:CGRectMake((_unitSize.width + _unitSpacing) * i,
+                                                0.0f,
+                                                _unitSize.width,
+                                                _unitSize.height)];
+                _unitBgViewMaker(unitBgView);
+                [self addSubview:unitBgView];
+                [_unitBgViews addObject:unitBgView];
+            }
+        }
+        // 删除多余UnitBg
+        [_unitBgViews removeObjectsInArray:unitBgNeedsRemove];
+    } else {
+        for (int i = 0; i < _amountPattern.length; i++) {
+            UIView *unitBgView = [[UIView alloc] init];
+            [unitBgView setFrame:CGRectMake((_unitSize.width + _unitSpacing) * i,
+                                            0.0f,
+                                            _unitSize.width,
+                                            _unitSize.height)];
+            [self addSubview:unitBgView];
+            [_unitBgViews addObject:unitBgView];
+        }
+
+        NSMutableArray *unitBgNeedsRemove = [NSMutableArray array];
+        for (int i = 0; i < MAX(_amountPattern.length, _unitBgViews.count); i++) {
+            if (i < MIN(_amountPattern.length, _unitBgViews.count)) {
+                // 已创建，无需重置内容
+            } else if (i >= _amountPattern.length && i < _units.count) {
+                // 已创建，多余需删除
+                [_unitBgViews[i] removeFromSuperview];
+                [unitBgNeedsRemove addObject:_unitBgViews[i]];
+            } else {
+                // 初次创建
+                UIView *unitBgView = [[UIView alloc] init];
+                [unitBgView setFrame:CGRectMake((_unitSize.width + _unitSpacing) * i,
+                                                0.0f,
+                                                _unitSize.width,
+                                                _unitSize.height)];
+                [self addSubview:unitBgView];
+                [_unitBgViews addObject:unitBgView];
+            }
+        }
+        // 删除多余UnitBg
+        [_unitBgViews removeObjectsInArray:unitBgNeedsRemove];
+    }
+}
+
 - (void)createUnits {
     if (!_units) {
         self.units = [NSMutableArray array];
@@ -194,6 +281,60 @@
     }
 }
 
+- (void)fixUnits {
+    if (!_units) {
+        self.units = [NSMutableArray array];
+    }
+
+    NSMutableArray *unitNeedsRemove = [NSMutableArray array];
+    for (int i = 0; i < MAX(_amountPattern.length, _units.count); i++) {
+        if (i < MIN(_amountPattern.length, _units.count)) {
+            // 已创建，仅需重置内容
+            NSString *unitStr = [_amountPattern substringWithRange:NSMakeRange(i, 1)];
+            UUAmountBoardTableView *unit = _units[i];
+            unit.placeholder = unitStr;
+            if ([self isPureInt:unitStr]) {
+                [unit setScrollEnabled:YES];    // 数字，可滚动
+            } else {
+                [unit setScrollEnabled:NO];     // 非数字，不可滚动
+            }
+            [unit reloadData];
+        } else if (i >= _amountPattern.length && i < _units.count) {
+            // 已创建，多余需删除
+            [_units[i] removeFromSuperview];
+            [unitNeedsRemove addObject:_units[i]];
+        } else {
+            // 初次创建
+            NSString *unitStr = [_amountPattern substringWithRange:NSMakeRange(i, 1)];
+
+            UUAmountBoardTableView *unit = [[UUAmountBoardTableView alloc] initWithFrame:CGRectMake((_unitSize.width + _unitSpacing) * i, 0.0f, _unitSize.width, _unitSize.height) style:UITableViewStyleGrouped];
+            if (@available(iOS 11.0, *)) {
+                unit.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+            }
+            unit.placeholder = unitStr;
+            if ([self isPureInt:unitStr]) {
+                [unit setScrollEnabled:YES];    // 数字，可滚动
+            } else {
+                [unit setScrollEnabled:NO];     // 非数字，不可滚动
+            }
+            unit.backgroundColor = [UIColor clearColor];
+            unit.estimatedRowHeight = _unitSize.height;
+            unit.delegate = self;
+            unit.dataSource = self;
+            unit.showsVerticalScrollIndicator = NO;
+            unit.showsHorizontalScrollIndicator = NO;
+            unit.separatorStyle = UITableViewCellSeparatorStyleNone;
+            unit.userInteractionEnabled = NO;
+            [self addSubview:unit];
+
+            [_units addObject:unit];
+        }
+    }
+
+    // 删除多余Unit
+    [_units removeObjectsInArray:unitNeedsRemove];
+}
+
 - (void)layoutSubviews {
     [super layoutSubviews];
 
@@ -216,13 +357,17 @@
         return;
     }
 
-    _amount = amount;
-    if (amount.length != _units.count) {
-        _amountPattern = amount;
-        [self createUnitBgs];
-        [self createUnits];
+    if (![_amount isEqualToString:amount]) {
+        BOOL isContentSizeChanged = (amount.length != _units.count);
 
-        [self invalidateIntrinsicContentSize];
+        _amount = amount;
+        _amountPattern = amount;
+        [self fixUnitBgs];
+        [self fixUnits];
+
+        if (isContentSizeChanged) {
+            [self invalidateIntrinsicContentSize];
+        }
     }
 
     for (int i = 0; i < _units.count; i++) {
@@ -257,13 +402,17 @@
         return;
     }
 
-    _amount = amount;
-    if (amount.length != _units.count) {
-        _amountPattern = amount;
-        [self createUnitBgs];
-        [self createUnits];
+    if (![_amount isEqualToString:amount]) {
+        BOOL isContentSizeChanged = (amount.length != _units.count);
 
-        [self invalidateIntrinsicContentSize];
+        _amount = amount;
+        _amountPattern = amount;
+        [self fixUnitBgs];
+        [self fixUnits];
+
+        if (isContentSizeChanged) {
+            [self invalidateIntrinsicContentSize];
+        }
     }
 
     for (int i = 0; i < _units.count; i++) {
@@ -323,11 +472,7 @@
 
 #pragma mark - UITableViewDataSource
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    if (tableView.isScrollEnabled) {
-        return 50;
-    } else {
-        return 1;
-    }
+    return 50;
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
