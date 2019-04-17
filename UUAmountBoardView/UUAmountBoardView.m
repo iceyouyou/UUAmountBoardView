@@ -13,6 +13,7 @@
 
 @property (nonatomic, copy) NSString *amountPattern;
 @property (nonatomic, copy) NSString *amount;
+@property (nonatomic, copy) NSString *amountString;
 
 @property (nonatomic, assign) CGSize unitSize;
 @property (nonatomic, assign) CGFloat unitSpacing;
@@ -30,6 +31,8 @@
 @end
 
 @implementation UUAmountBoardView
+
+static int ROUNDS_IN_COUNTING = 1;   // 滚动到指定位置时跨过的完整圈数(0~9为一圈)
 
 - (instancetype)initWithFrame:(CGRect)frame
                 amountPattern:(NSString*)amountPattern
@@ -212,16 +215,6 @@
         // 删除多余UnitBg
         [_unitBgViews removeObjectsInArray:unitBgNeedsRemove];
     } else {
-        for (int i = 0; i < _amountPattern.length; i++) {
-            UIView *unitBgView = [[UIView alloc] init];
-            [unitBgView setFrame:CGRectMake((_unitSize.width + _unitSpacing) * i,
-                                            0.0f,
-                                            _unitSize.width,
-                                            _unitSize.height)];
-            [self addSubview:unitBgView];
-            [_unitBgViews addObject:unitBgView];
-        }
-
         NSMutableArray *unitBgNeedsRemove = [NSMutableArray array];
         for (int i = 0; i < MAX(_amountPattern.length, _unitBgViews.count); i++) {
             if (i < MIN(_amountPattern.length, _unitBgViews.count)) {
@@ -261,6 +254,7 @@
         if (@available(iOS 11.0, *)) {
             unit.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
         }
+        unit.tag = i;
         if ([self isPureInt:unitStr]) {
             [unit setScrollEnabled:YES];    // 数字，可滚动
         } else {
@@ -311,6 +305,7 @@
             if (@available(iOS 11.0, *)) {
                 unit.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
             }
+            unit.tag = i;
             unit.placeholder = unitStr;
             if ([self isPureInt:unitStr]) {
                 [unit setScrollEnabled:YES];    // 数字，可滚动
@@ -357,6 +352,7 @@
         return;
     }
 
+    _amountString = nil;
     if (![_amount isEqualToString:amount]) {
         BOOL isContentSizeChanged = (amount.length != _units.count);
 
@@ -373,7 +369,7 @@
     for (int i = 0; i < _units.count; i++) {
         if (_units[i].isScrollEnabled) {
             NSString *unitStr = [amount substringWithRange:NSMakeRange(i, 1)];
-            [_units[i] setContentOffset:CGPointMake(0.0f, [unitStr intValue] * _unitSize.height)];
+            [_units[i] scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:[unitStr intValue] inSection:0] atScrollPosition:UITableViewScrollPositionNone animated:NO];
         }
     }
 }
@@ -383,12 +379,13 @@
         return;
     }
 
+    _amountString = nil;
     for (int i = 0; i < _units.count; i++) {
         if (_units[i].isScrollEnabled) {
             NSString *unitStr = [_amount substringWithRange:NSMakeRange(i, 1)];
             POPBasicAnimation *unitCountingAnimation = [POPBasicAnimation animationWithPropertyNamed:kPOPTableViewContentOffset];
             unitCountingAnimation.fromValue = [NSValue valueWithCGPoint:CGPointMake(0.0f, 0.0f)];
-            unitCountingAnimation.toValue = [NSValue valueWithCGPoint:CGPointMake(0.0f, 10.0f * _unitSize.height + [unitStr intValue] * _unitSize.height)];
+            unitCountingAnimation.toValue = [NSValue valueWithCGPoint:CGPointMake(0.0f, (_unitSize.height * ROUNDS_IN_COUNTING * 10) + (_unitSize.height * [unitStr intValue]))];
             unitCountingAnimation.beginTime = CACurrentMediaTime();
             unitCountingAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
             unitCountingAnimation.duration = 2.0 + (i * 0.3);
@@ -402,6 +399,7 @@
         return;
     }
 
+    _amountString = nil;
     if (![_amount isEqualToString:amount]) {
         BOOL isContentSizeChanged = (amount.length != _units.count);
 
@@ -420,7 +418,45 @@
             NSString *unitStr = [_amount substringWithRange:NSMakeRange(i, 1)];
             POPBasicAnimation *unitCountingAnimation = [POPBasicAnimation animationWithPropertyNamed:kPOPTableViewContentOffset];
             unitCountingAnimation.fromValue = [NSValue valueWithCGPoint:CGPointMake(0.0f, 0.0f)];
-            unitCountingAnimation.toValue = [NSValue valueWithCGPoint:CGPointMake(0.0f, 10.0f * _unitSize.height + [unitStr intValue] * _unitSize.height)];
+            unitCountingAnimation.toValue = [NSValue valueWithCGPoint:CGPointMake(0.0f, (_unitSize.height * ROUNDS_IN_COUNTING * 10) + (_unitSize.height * [unitStr intValue]))];
+            unitCountingAnimation.beginTime = CACurrentMediaTime();
+            unitCountingAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+            unitCountingAnimation.duration = 2.0 + (i * 0.3);
+            [_units[i] pop_addAnimation:unitCountingAnimation forKey:@"unitCountingAnimation"];
+        }
+    }
+}
+
+- (void)countingToAmountString:(NSString*)amountString {
+    if (!amountString || [amountString isEqualToString:@""]) {
+        return;
+    }
+
+    _amountString = amountString;
+    NSMutableString *fakeAmount = [NSMutableString string];
+    for (int i = 0; i < _amountString.length; i++) {
+        [fakeAmount appendString:@"0"];
+    }
+
+    if (![_amount isEqualToString:fakeAmount]) {
+        BOOL isContentSizeChanged = (fakeAmount.length != _units.count);
+
+        _amount = fakeAmount;
+        _amountPattern = fakeAmount;
+        [self fixUnitBgs];
+        [self fixUnits];
+
+        if (isContentSizeChanged) {
+            [self invalidateIntrinsicContentSize];
+        }
+    }
+
+    for (int i = 0; i < _units.count; i++) {
+        if (_units[i].isScrollEnabled) {
+            NSString *unitStr = [_amount substringWithRange:NSMakeRange(i, 1)];
+            POPBasicAnimation *unitCountingAnimation = [POPBasicAnimation animationWithPropertyNamed:kPOPTableViewContentOffset];
+            unitCountingAnimation.fromValue = [NSValue valueWithCGPoint:CGPointMake(0.0f, 0.0f)];
+            unitCountingAnimation.toValue = [NSValue valueWithCGPoint:CGPointMake(0.0f, (_unitSize.height * ROUNDS_IN_COUNTING * 10) + (_unitSize.height * [unitStr intValue]))];
             unitCountingAnimation.beginTime = CACurrentMediaTime();
             unitCountingAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
             unitCountingAnimation.duration = 2.0 + (i * 0.3);
@@ -487,7 +523,16 @@
     }
 
     if (tableView.isScrollEnabled) {
-        [cell setContent:[NSString stringWithFormat:@"%ld", (indexPath.row % 10)]];
+        if (!_amountString) {
+            [cell setContent:[NSString stringWithFormat:@"%ld", (indexPath.row % 10)]];
+        } else {
+            // only used for @selector(countingToAmountString:)
+            if (indexPath.row == ROUNDS_IN_COUNTING * 10) {
+                [cell setContent:[_amountString substringWithRange:NSMakeRange(tableView.tag, 1)]];
+            } else {
+                [cell setContent:[NSString stringWithFormat:@"%ld", (indexPath.row % 10)]];
+            }
+        }
     } else {
         [cell setContent:((UUAmountBoardTableView*)tableView).placeholder];
     }
