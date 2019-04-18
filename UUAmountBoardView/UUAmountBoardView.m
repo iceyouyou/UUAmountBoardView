@@ -369,7 +369,11 @@ static int ROUNDS_IN_COUNTING = 1;   // 滚动到指定位置时跨过的完整�
     for (int i = 0; i < _units.count; i++) {
         if (_units[i].isScrollEnabled) {
             NSString *unitStr = [amount substringWithRange:NSMakeRange(i, 1)];
-            [_units[i] scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:[unitStr intValue] inSection:0] atScrollPosition:UITableViewScrollPositionNone animated:NO];
+            if (@available(iOS 11.0, *)) {
+                [_units[i] setContentOffset:CGPointMake(0.0f, [unitStr intValue] * _unitSize.height)];
+            } else {
+                [_units[i] scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:[unitStr intValue] inSection:0] atScrollPosition:UITableViewScrollPositionNone animated:NO];
+            }
         }
     }
 }
