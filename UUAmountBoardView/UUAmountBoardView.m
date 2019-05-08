@@ -292,7 +292,6 @@ static int ROUNDS_IN_COUNTING = 1;   // 滚动到指定位置时跨过的完整�
             } else {
                 [unit setScrollEnabled:NO];     // 非数字，不可滚动
             }
-            [unit reloadData];
         } else if (i >= _amountPattern.length && i < _units.count) {
             // 已创建，多余需删除
             [_units[i] removeFromSuperview];
